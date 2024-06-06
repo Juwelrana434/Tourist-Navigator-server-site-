@@ -47,6 +47,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+  
+    const guideCollection = client.db('touristssection').collection('guides');
+  
+  
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -76,7 +80,20 @@ async function run() {
         res.status(500).send(err)
       }
     })
-
+// read tourist guide data to server for menu
+app.get('/guide', async(req, res) => {
+  const cursor = guideCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  });
+  
+  // for view details data read 
+  app.get('/guide/:id', async (req, res) => {
+    // console.log(req.params.id);
+      const cursor = guideCollection.findOne({_id : new ObjectId(req.params.id)});
+      const result = await cursor;
+      res.send(result);
+      })
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
