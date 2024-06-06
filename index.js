@@ -49,6 +49,9 @@ async function run() {
   try {
   
     const guideCollection = client.db('touristssection').collection('guides');
+    const commentCollection = client.db('touristssection').collection('comments');
+    const tourtypeCollection = client.db('touristssection').collection('tourtype');
+    const wishListCollection = client.db('touristssection').collection('wishList');
   
   
     // auth related api
@@ -87,13 +90,46 @@ app.get('/guide', async(req, res) => {
   res.send(result);
   });
   
-  // for view details data read 
+// read Tour type  data to server for menu
+app.get('/tourtype', async(req, res) => {
+  const cursor = tourtypeCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  });
+// read package details data to server for 
+app.get('/tour/:id', async (req, res) => {
+  // console.log(req.params.id);
+    const cursor = tourtypeCollection.findOne({_id : new ObjectId(req.params.id)});
+    const result = await cursor;
+    res.send(result);
+  
+    
+  });
+  
+  // for tour guide details data read 
   app.get('/guide/:id', async (req, res) => {
     // console.log(req.params.id);
       const cursor = guideCollection.findOne({_id : new ObjectId(req.params.id)});
       const result = await cursor;
       res.send(result);
       })
+      
+      // user feedback about tourist guide data send to server
+
+    app.post("/comment", async (req, res) => {
+      const comment = req.body;
+      console.log(comment);
+      const result = await commentCollection.insertOne(comment);
+      res.send(result);
+    });
+      // user feedback about tourist guide data send to server
+
+    app.post("/wishList", async (req, res) => {
+      const wishList = req.body;
+      console.log(wishList);
+      const result = await wishListCollection.insertOne(wishList);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
