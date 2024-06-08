@@ -52,6 +52,7 @@ async function run() {
     const commentCollection = client.db('touristssection').collection('comments');
     const tourtypeCollection = client.db('touristssection').collection('tourtype');
     const wishListCollection = client.db('touristssection').collection('wishList');
+    const bookingCollection = client.db('touristssection').collection('booking');
   
   
     // auth related api
@@ -128,6 +129,14 @@ app.get('/tour/:id', async (req, res) => {
       const wishList = req.body;
       console.log(wishList);
       const result = await wishListCollection.insertOne(wishList);
+      res.send(result);
+    });
+      // user booking tour data send to server
+
+    app.post("/booking", async (req, res) => {
+      const tourBooking = req.body;
+      console.log(tourBooking);
+      const result = await bookingCollection.insertOne(tourBooking);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
