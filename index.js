@@ -53,6 +53,7 @@ async function run() {
     const tourtypeCollection = client.db('touristssection').collection('tourtype');
     const wishListCollection = client.db('touristssection').collection('wishList');
     const bookingCollection = client.db('touristssection').collection('booking');
+    const storyCollection = client.db('touristssection').collection('story');
   
   
     // auth related api
@@ -98,7 +99,7 @@ app.get('/tourtype', async(req, res) => {
   res.send(result);
   });
 // read package details data to server for 
-app.get('/tour/:id', async (req, res) => {
+app.get('/tourtype/:id', async (req, res) => {
   // console.log(req.params.id);
     const cursor = tourtypeCollection.findOne({_id : new ObjectId(req.params.id)});
     const result = await cursor;
@@ -111,6 +112,20 @@ app.get('/tour/:id', async (req, res) => {
   app.get('/guide/:id', async (req, res) => {
     // console.log(req.params.id);
       const cursor = guideCollection.findOne({_id : new ObjectId(req.params.id)});
+      const result = await cursor;
+      res.send(result);
+      })
+      // read Tour story  data to server for menu
+app.get('/tourstory', async(req, res) => {
+  const cursor = storyCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  });
+      
+  // for tour story details data read 
+  app.get('/tourstory/:id', async (req, res) => {
+    console.log(req.params.id);
+      const cursor = storyCollection.findOne({_id : new ObjectId(req.params.id)});
       const result = await cursor;
       res.send(result);
       })
