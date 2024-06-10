@@ -138,6 +138,7 @@ app.get('/tourstory', async(req, res) => {
       const result = await commentCollection.insertOne(comment);
       res.send(result);
     });
+    
       // user feedback about tourist guide data send to server
 
     app.post("/wishList", async (req, res) => {
