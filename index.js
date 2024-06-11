@@ -54,6 +54,7 @@ async function run() {
     const wishListCollection = client.db('touristssection').collection('wishList');
     const bookingCollection = client.db('touristssection').collection('booking');
     const storyCollection = client.db('touristssection').collection('story');
+    const usersCollection = client.db('touristssection').collection('users');
   
   
     // auth related api
@@ -85,6 +86,51 @@ async function run() {
         res.status(500).send(err)
       }
     })
+    
+    // users related api
+    // app.post('/users', async(req, res) => {
+    //   const user = req.body;
+    //   const query = {email: user.email}
+    //   const existingUser = await userCollection.findOne(query);
+    //   if (existingUser) {
+    //     return res.send('User already exists');
+    //   }
+    //   const result = await userCollection.insertOne(user);
+    //   res.send(result);
+    //   });
+    
+    
+    // save a user data in db
+app.put('/user', async (req, res) => {
+  const user = req.body
+  const query = { email: user?.email }
+  // check if user already exists in db
+  const isExist = await usersCollection.findOne(query)
+  if (isExist) {
+    if (user.status === 'Requested') {
+      // if existing user try to change his role
+      const result = await usersCollection.updateOne(query, {
+        $set: { status: user?.status },
+      })
+      return res.send(result)
+    } else {
+      // if existing user login again
+      return res.send(isExist)
+    }
+  }
+
+  // save user for the first time
+  const options = { upsert: true }
+  const updateDoc = {
+    $set: {
+      ...user,
+      timestamp: Date.now(),
+    },
+  }
+  const result = await usersCollection.updateOne(query, updateDoc, options)
+  res.send(result)
+});
+    
 // read tourist guide data to server for menu
 app.get('/guide', async(req, res) => {
   const cursor = guideCollection.find();
@@ -109,6 +155,12 @@ app.get('/tourtype/:id', async (req, res) => {
   });
   
   // for tour guide details data read 
+  app.get('/guide/:id', async (req, res) => {
+    // console.log(req.params.id);
+      const cursor = guideCollection.findOne({_id : new ObjectId(req.params.id)});
+      const result = await cursor;
+      res.send(result);
+      })
   app.get('/guide/:id', async (req, res) => {
     // console.log(req.params.id);
       const cursor = guideCollection.findOne({_id : new ObjectId(req.params.id)});
@@ -184,6 +236,17 @@ app.get('/booking', async(req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await bookingCollection.deleteOne(query);
+      res.send(result);
+
+      }) ;
+    //delete wishlist  collection data 
+      
+      
+    app.delete('/wishList/:id', async(req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: (id) }
+      const result = await wishListCollection.deleteOne(query);
       res.send(result);
 
       }) ;
