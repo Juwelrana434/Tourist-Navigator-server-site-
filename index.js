@@ -130,6 +130,13 @@ app.get('/tourstory', async(req, res) => {
       res.send(result);
       })
       
+      // booking  data to server for menu
+app.get('/booking', async(req, res) => {
+  const cursor = bookingCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  });
+      
       // user feedback about tourist guide data send to server
 
     app.post("/comment", async (req, res) => {
@@ -147,6 +154,12 @@ app.get('/tourstory', async(req, res) => {
       const result = await wishListCollection.insertOne(wishList);
       res.send(result);
     });
+    app.get('/wishList', async(req, res) => {
+      const cursor = wishListCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+      });
+    
       // user booking tour data send to server
 
     app.post("/booking", async (req, res) => {
@@ -155,6 +168,26 @@ app.get('/tourstory', async(req, res) => {
       const result = await bookingCollection.insertOne(tourBooking);
       res.send(result);
     });
+      // user post a  tour  story data send to server
+
+    app.post("/story", async (req, res) => {
+      const tourstory = req.body;
+      console.log(tourstory);
+      const result = await storyCollection.insertOne(tourstory);
+      res.send(result);
+    });
+    
+    //delete booking  collection data 
+      
+      
+    app.delete('/booking/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await bookingCollection.deleteOne(query);
+      res.send(result);
+
+      }) ;
+      
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
