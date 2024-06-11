@@ -118,6 +118,14 @@ app.put('/user', async (req, res) => {
       return res.send(isExist)
     }
   }
+  
+  
+  // user  data read to server for menu
+app.get('/users', async(req, res) => {
+  const cursor = usersCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  });
 
   // save user for the first time
   const options = { upsert: true }
@@ -130,6 +138,15 @@ app.put('/user', async (req, res) => {
   const result = await usersCollection.updateOne(query, updateDoc, options)
   res.send(result)
 });
+    
+    // user data deleted from database by admin
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    })
+    
     
 // read tourist guide data to server for menu
 app.get('/guide', async(req, res) => {
