@@ -127,6 +127,23 @@ app.get('/users', async(req, res) => {
   res.send(result);
   });
 
+
+// Verify admin 
+app.get('/users/admin/:email', async (req, res) => {
+  const email = req.params.email;
+
+  if (email !== req.decoded.email) {
+    return res.status(403).send({ message: 'forbidden access' })
+  }
+
+  const query = { email: email };
+  const user = await userCollection.findOne(query);
+  let admin = false;
+  if (user) {
+    admin = user?.role === 'admin';
+  }
+  res.send({ admin });
+})
   // save user for the first time
   const options = { upsert: true }
   const updateDoc = {
