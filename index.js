@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 require('dotenv').config()
 const cors = require('cors')
+// const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
@@ -156,6 +157,7 @@ app.get('/users/admin/:email', async (req, res) => {
   }
   res.send({ admin });
 })
+
   // save user for the first time
   const options = { upsert: true }
   const updateDoc = {
