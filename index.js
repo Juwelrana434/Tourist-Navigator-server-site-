@@ -11,7 +11,7 @@ const port = process.env.PORT || 8000
 
 // middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
   credentials: true,
   optionSuccessStatus: 200,
 }
@@ -89,16 +89,16 @@ async function run() {
     })
     
     // users related api
-    // app.post('/users', async(req, res) => {
-    //   const user = req.body;
-    //   const query = {email: user.email}
-    //   const existingUser = await userCollection.findOne(query);
-    //   if (existingUser) {
-    //     return res.send('User already exists');
-    //   }
-    //   const result = await userCollection.insertOne(user);
-    //   res.send(result);
-    //   });
+    app.post('/users', async(req, res) => {
+      const user = req.body;
+      const query = {email: user.email}
+      const existingUser = await userCollection.findOne(query);
+      if (existingUser) {
+        return res.send('User already exists');
+      }
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+      });
     
     
     // save a user data in db
@@ -121,12 +121,9 @@ app.put('/user', async (req, res) => {
   }
   
   
-  // user  data read to server for menu
-app.get('/users', async(req, res) => {
-  const cursor = usersCollection.find();
-  const result = await cursor.toArray();
-  res.send(result);
-  });
+  
+  
+ 
   
  // make admin user
  app.patch('/users/admin/:id', async (req, res) => {
@@ -169,7 +166,8 @@ app.get('/users/admin/:email', async (req, res) => {
   const result = await usersCollection.updateOne(query, updateDoc, options)
   res.send(result)
 });
-    
+
+
     // user data deleted from database by admin
     app.delete('/users/:id', async (req, res) => {
       const id = req.params.id;
@@ -178,6 +176,35 @@ app.get('/users/admin/:email', async (req, res) => {
       res.send(result);
     })
     
+    // users  data read to server for menu
+  app.get('/users', async(req, res) => {
+    const cursor = usersCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+    });
+    
+     // get a user info by email from db to front end useRole
+  app.get('/user/:email', async (req, res) => {
+  const email = req.params.email
+  const result = await usersCollection.findOne({ email })
+  res.send(result)
+})
+    
+    // for my booking tour data read
+    app.get("/booking/:email", async (req, res) => {
+      console.log(req.params.email);
+      const cursor = bookingCollection.find({ email: req.params.email });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    
+    // for my wish list tour data read
+    app.get("/wishList/:email", async (req, res) => {
+      console.log(req.params.email);
+      const cursor = wishListCollection.find({ email: req.params.email });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
     
 // read tourist guide data to server for menu
 app.get('/guide', async(req, res) => {
@@ -236,6 +263,12 @@ app.get('/booking', async(req, res) => {
   const result = await cursor.toArray();
   res.send(result);
   });
+      // wish list   data to server for menu
+app.get('/WishList', async(req, res) => {
+  const cursor = wishListCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  });
       
       // user feedback about tourist guide data send to server
 
@@ -254,11 +287,8 @@ app.get('/booking', async(req, res) => {
       const result = await wishListCollection.insertOne(wishList);
       res.send(result);
     });
-    app.get('/wishList', async(req, res) => {
-      const cursor = wishListCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-      });
+    
+    
     
       // user booking tour data send to server
 
@@ -268,6 +298,8 @@ app.get('/booking', async(req, res) => {
       const result = await bookingCollection.insertOne(tourBooking);
       res.send(result);
     });
+    
+    
       // user post a  tour  story data send to server
 
     app.post("/story", async (req, res) => {
