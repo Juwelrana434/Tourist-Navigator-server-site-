@@ -60,12 +60,12 @@ async function run() {
     const storyCollection = client.db("touristssection").collection("story");
     const usersCollection = client.db("touristssection").collection("users");
 
-// // jwt related api local stroge
-// app.post('/jwt', async (req, res) => {
-//   const user = req.body;
-//   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' });
-//   res.send({ token });
-// })
+// jwt related api local stroge
+app.post('/jwt', async (req, res) => {
+  const user = req.body;
+  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' });
+  res.send({ token });
+})
 
 
 
