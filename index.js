@@ -53,50 +53,53 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const guideCollection = client.db("touristssection").collection("guides");
-    const commentCollection = client
-      .db("touristssection")
-      .collection("comments");
-    const tourtypeCollection = client
-      .db("touristssection")
-      .collection("tourtype");
-    const wishListCollection = client
-      .db("touristssection")
-      .collection("wishList");
-    const bookingCollection = client
-      .db("touristssection")
-      .collection("booking");
+    const commentCollection = client.db("touristssection").collection("comments");
+    const tourtypeCollection = client.db("touristssection").collection("tourtype");
+    const wishListCollection = client.db("touristssection").collection("wishList");
+    const bookingCollection = client.db("touristssection").collection("booking");
     const storyCollection = client.db("touristssection").collection("story");
     const usersCollection = client.db("touristssection").collection("users");
 
+// // jwt related api local stroge
+// app.post('/jwt', async (req, res) => {
+//   const user = req.body;
+//   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' });
+//   res.send({ token });
+// })
+
+
+
+
+
     // auth related api
-    app.post("/jwt", async (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "365d",
-      });
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-        })
-        .send({ success: true });
-    });
-    // Logout
-    app.get("/logout", async (req, res) => {
-      try {
-        res
-          .clearCookie("token", {
-            maxAge: 0,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-          })
-          .send({ success: true });
-        console.log("Logout successful");
-      } catch (err) {
-        res.status(500).send(err);
-      }
-    });
+    // app.post("/jwt", async (req, res) => {
+    //   const user = req.body;
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    //     expiresIn: "365d",
+    //   });
+    //   res
+    //     .cookie("token", token, {
+    //       httpOnly: true,
+    //       secure: process.env.NODE_ENV === "production",
+    //       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    //     })
+    //     .send({ success: true });
+    // });
+    // // Logout
+    // app.get("/logout", async (req, res) => {
+    //   try {
+    //     res
+    //       .clearCookie("token", {
+    //         maxAge: 0,
+    //         secure: process.env.NODE_ENV === "production",
+    //         sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    //       })
+    //       .send({ success: true });
+    //     console.log("Logout successful");
+    //   } catch (err) {
+    //     res.status(500).send(err);
+    //   }
+    // });
 
     // users related api
     app.post("/users", async (req, res) => {
@@ -152,7 +155,57 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
+    
+// make guide user
+app.patch('/users/guide/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      role: 'guide',
+    }
+  }
+  const result = await usersCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+})
+// make request for guide user
+// app.patch('/user/guide/:id', async (req, res) => {
+//   const id = req.params.id;
+//   console.log(id);
+//   const filter = { _id: new ObjectId(id) };
+//   const updatedDoc = {
+//     $set: {
+//       status: 'Want to guide',
+//     }
+//   }
+//   const result = await usersCollection.updateOne(filter, updatedDoc);
+//   res.send(result);
+// });
 
+// Update tour booking  status by tour guide
+app.patch('/book/:id', async (req, res) => {
+  const id = req.params.id
+  console.log(id);
+  const status = req.body
+  const query = { _id: new ObjectId(id) }
+  const updateDoc = {
+    $set: status,
+  }
+  const result = await bookingCollection.updateOne(query, updateDoc)
+  res.send(result)
+})
+// tourist request for admin or guide
+app.patch('/book/:id', async (req, res) => {
+  const id = req.params.id
+  console.log(id);
+  const status = req.body
+  const query = { _id: new ObjectId(id) }
+  const updateDoc = {
+    $set: status,
+  }
+  const result = await usersCollection.updateOne(query, updateDoc)
+  res.send(result)
+})
     // Verify admin
     app.get("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
@@ -206,6 +259,35 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    
+    // tour guide select by tourist  read to server
+    app.get("/booking/:email", async (req, res) => {
+      console.log(req.params.email);
+      const cursor = bookingCollection.find({ email: req.params.email });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // tour guide select by tourist  read to server
+    app.get("/booking/:GuideName", async (req, res) => {
+      console.log(req.params.GuideName);
+      const cursor = bookingCollection.find({ GuideName: req.params.GuideName });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // tour guide select by tourist  read to server
+    app.get("/booking/guide/:guideemail", async (req, res) => {
+      console.log(req.params.guideemail);
+      const cursor = bookingCollection.find({ guideemail: req.params.guideemail });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    
+    app.get("/allguides", async (req, res) => {
+     
+      const cursor = usersCollection.find({ role:'guide'});
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     // read tourist guide data to server for menu
     app.get("/guide", async (req, res) => {
@@ -239,14 +321,15 @@ async function run() {
       const result = await cursor;
       res.send(result);
     });
-    app.get("/guide/:id", async (req, res) => {
-      // console.log(req.params.id);
-      const cursor = guideCollection.findOne({
-        _id: new ObjectId(req.params.id),
-      });
-      const result = await cursor;
-      res.send(result);
-    });
+    
+    // app.get("/guide/:id", async (req, res) => {
+    //   // console.log(req.params.id);
+    //   const cursor = guideCollection.findOne({
+    //     _id: new ObjectId(req.params.id),
+    //   });
+    //   const result = await cursor;
+    //   res.send(result);
+    // });
     // read Tour story  data to server for menu
     app.get("/tourstory", async (req, res) => {
       const cursor = storyCollection.find();
@@ -271,20 +354,13 @@ async function run() {
       res.send(result);
     });
     // wish list   data to server for menu
-    app.get("/WishList", async (req, res) => {
+    app.get("/wishList", async (req, res) => {
       const cursor = wishListCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    // user feedback about tourist guide data send to server
-
-    app.post("/comment", async (req, res) => {
-      const comment = req.body;
-      console.log(comment);
-      const result = await commentCollection.insertOne(comment);
-      res.send(result);
-    });
+    
 
     // user feedback about tourist guide data send to server
 
@@ -294,7 +370,24 @@ async function run() {
       const result = await wishListCollection.insertOne(wishList);
       res.send(result);
     });
+    
+    // add tour by admin
+    app.post("/tourtype", async (req, res) => {
+      const tourtype = req.body;
+      
+      const result = await tourtypeCollection.insertOne(tourtype);
+      res.send(result);
+    });
+    
+    
+// user feedback about tourist guide data send to server
 
+app.post("/comment", async (req, res) => {
+  const comment = req.body;
+  console.log(comment);
+  const result = await commentCollection.insertOne(comment);
+  res.send(result);
+});
     // user booking tour data send to server
 
     app.post("/booking", async (req, res) => {
@@ -326,10 +419,12 @@ async function run() {
     app.delete("/wishList/:id", async (req, res) => {
       const id = req.params.id;
       console.log(id);
-      const query = { _id: id };
+      const query = { _id: new ObjectId(id) };
       const result = await wishListCollection.deleteOne(query);
       res.send(result);
     });
+    
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
