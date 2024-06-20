@@ -169,18 +169,18 @@ app.patch('/users/guide/:id', async (req, res) => {
   res.send(result);
 })
 // make request for guide user
-// app.patch('/user/guide/:id', async (req, res) => {
-//   const id = req.params.id;
-//   console.log(id);
-//   const filter = { _id: new ObjectId(id) };
-//   const updatedDoc = {
-//     $set: {
-//       status: 'Want to guide',
-//     }
-//   }
-//   const result = await usersCollection.updateOne(filter, updatedDoc);
-//   res.send(result);
-// });
+app.patch('/user/guide/:id', async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      status: 'Want to guide',
+    }
+  }
+  const result = await usersCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+});
 
 // Update tour booking  status by tour guide
 app.patch('/book/:id', async (req, res) => {
