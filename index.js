@@ -4,6 +4,9 @@ require("dotenv").config();
 const cors = require("cors");
 // const jwt = require('jsonwebtoken');
 const cookieParser = require("cookie-parser");
+// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY)
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 
@@ -15,6 +18,8 @@ const corsOptions = {
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
+    "https://tourist-guide-6180c.web.app",
+    "https://tourist-guide-6180c.firebaseapp.com",
   ],
   credentials: true,
   optionSuccessStatus: 200,
@@ -59,6 +64,7 @@ async function run() {
     const bookingCollection = client.db("touristssection").collection("booking");
     const storyCollection = client.db("touristssection").collection("story");
     const usersCollection = client.db("touristssection").collection("users");
+    const paymentCollection = client.db("touristssection").collection("payment");
 
 // jwt related api local stroge
 // app.post('/jwt', async (req, res) => {
@@ -424,10 +430,42 @@ app.post("/comment", async (req, res) => {
       res.send(result);
     });
     
+     // payment intent
+     app.post('/create-payment-intent', async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      console.log(amount, 'amount inside the intent')
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+    });
     
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+      const paymentResult = await paymentCollection.insertOne(payment);
+
+      //  carefully delete each item from the cart
+      console.log('payment info', payment);
+      const query = {
+        _id: {
+          $in: payment.cartIds.map(id => new ObjectId(id))
+        }
+      };
+
+      const deleteResult = await cartCollection.deleteMany(query);
+
+      res.send({ paymentResult, deleteResult });
+    })
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
