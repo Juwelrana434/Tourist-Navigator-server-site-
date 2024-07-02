@@ -25,13 +25,13 @@
 - [react-google-charts](https://www.npmjs.com/package/react-google-charts)
   ### Destination Information:
 
--[Detailed descriptions of cities, attractions, landmarks, and points of interest.<br/>
--[Historical and cultural background information.
+- Detailed descriptions of cities, attractions, landmarks, and points of interest.<br/>
+- Historical and cultural background information.
 
 ### Activity and Tour Booking:
 
--Listings of tours, activities, and experiences available at the destination.
--Booking options for guided tours, adventure activities, and cultural experiences.
+- Listings of tours, activities, and experiences available at the destination.
+- Booking options for guided tours, adventure activities, and cultural experiences.
 
 ### Run Your Local computer 
 - Nodemon index.js
