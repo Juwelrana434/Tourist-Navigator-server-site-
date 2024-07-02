@@ -25,5 +25,5 @@
 - [react-google-charts](https://www.npmjs.com/package/react-google-charts)
   ### Destination Information:
 
--[Detailed descriptions of cities, attractions, landmarks, and points of interest.
+-[Detailed descriptions of cities, attractions, landmarks, and points of interest.<br/>
 -[Historical and cultural background information.
